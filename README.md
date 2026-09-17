@@ -35,9 +35,14 @@ OPTIONS="root" ./forge/bootstrap.sh      # or pick options directly, no preset n
 ```
 
 Presets live in `device.conf`; options live in the forge and work on any device. Adding an option to
-a preset is one word — there is no per-device wiring to write. The app options in `libre` carry
-patches for lineage-22.2 and 23.2 (`k9`, `kdeconnect` and `termoneplus` also 20.0); on another
-branch, drop the ones without a patch set from the preset or the build stops at its option check.
+a preset is one word — there is no per-device wiring to write. App options (`fdroid`, `firefox`,
+`k9`, `termoneplus`, `kdeconnect`, plus `nextcloud` — the eight Nextcloud apps, ~600 MB — and
+`nextcloud-core` — Files, Talk and NextPush, ~250 MB) download the build F-Droid currently suggests
+at sync time, verified by signing certificate; `FDROID_PINS` in `device.conf` holds one to a
+versionCode. They carry patches for lineage-22.2 and 23.2 (`k9`, `kdeconnect`, `termoneplus`,
+`nextcloud*` also 20.0); on another branch, drop the ones without a patch set from the preset or
+the build stops at its option check. Check the super partition before adding the big ones: an
+image that does not fit fails hours in, when it is assembled.
 
 ## What it does for you
 
