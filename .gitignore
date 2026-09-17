@@ -1,0 +1,16 @@
+# heavy build state — re-created by the forge; never committed
+/build_output/
+out/
+*.log
+*.rej
+*.orig
+.DS_Store
+
+# fetched prebuilts (re-downloaded on demand, often non-redistributable)
+forge/prebuilt/*.apk
+
+# historical session notes, kept on disk but not published
+archive/
+
+# personal, per-checkout build settings (KEYS_DIR, EXTRA_OPTIONS) -- never published
+/device.conf.local

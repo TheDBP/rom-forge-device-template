@@ -1,0 +1,38 @@
+# Keeps the vendored forge/ current so a freshly-cloned template is never stale.
+#
+# Belt and braces: start-here.sh also self-updates on first run, and rom-forge's
+# propagate-forge.sh pushes updates out when the engine changes. This catches the case where
+# nobody has run either for a while.
+name: sync forge
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'      # Mondays, 06:00 UTC
+  workflow_dispatch:          # and on demand
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pull the latest engine into forge/
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          before=$(grep -m1 '^commit=' forge/FORGE_REF | cut -d= -f2)
+          ./forge/tools/sync-forge.sh
+          after=$(grep -m1 '^commit=' forge/FORGE_REF | cut -d= -f2)
+          if [ "$before" = "$after" ]; then
+            echo "already current ($after)"; exit 0
+          fi
+          echo "forge $before -> $after"
+          git add -A
+          git commit -m "forge sync: ${after:0:12}
+
+          Automated weekly sync so a freshly-cloned template ships a current
+          engine. Previous: ${before:0:12}"
+          git push
