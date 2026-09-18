@@ -167,7 +167,7 @@ say "  ./bootstrap.sh                 build it (hours the first time)"
 say "  PRESET=clean ./bootstrap.sh    build without Google apps or root"
 say "  PRESET=libre ./bootstrap.sh    the same plus F-Droid, Firefox, K-9 -- the one you can publish"
 echo
-say "The ROM lands in build_output/src/out/target/product/$CODENAME/"
+say "The ROM lands in build_output/artifacts/ (a copy that survives the next build)"
 echo
 b "If you are porting to a branch your device does not officially support:"
 say "  ./forge/tools/check-platform-support.sh build_output/src device/<vendor>/$CODENAME"
