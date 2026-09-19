@@ -25,7 +25,7 @@ One command produces one image. A **preset** is a saved set of **options**:
 | Preset | Adds | Good for |
 |---|---|---|
 | `clean` | nothing | The baseline. Nothing proprietary baked in. |
-| `libre` | F-Droid, Firefox, K-9 Mail, TermOne Plus, KDE Connect | Sharing: the one `release.sh` will publish. |
+| `libre` | F-Droid, Fulguris, K-9 Mail, TermOne Plus, KDE Connect, ConnectBot, Linphone | Sharing: the one `release.sh` will publish. |
 | `full` | `libre` + Google apps + Magisk root | A daily driver with everything. |
 
 ```sh
@@ -49,15 +49,17 @@ the look-and-behaviour set has no 24.0 patches yet.
 | option | what it does | branches with patches |
 |---|---|---|
 | `advanced-restart` | Advanced restart in the power menu | 18.1, 19.1, 20.0, 22.2, 23.2 |
+| `connectbot` | ConnectBot: an SSH client with saved hosts, keys and port forwarding | 20.0, 22.2, 23.2, 24.0 |
 | `dark-default` | Default to dark theme | 20.0, 21.0, 22.2, 23.2 |
 | `fdroid` | F-Droid app store + Privileged Extension (silent installs/updates) | 22.2, 23.2, 24.0 |
-| `firefox` | Firefox (Fennec F-Droid) as the browser, replacing Jelly | 22.2, 23.2, 24.0 |
-| `fulguris` | Fulguris as the browser, replacing Jelly | 22.2 |
+| `firefox` | Firefox (Fennec F-Droid) as the browser, replacing Jelly — still available, no preset carries it now | 22.2, 23.2, 24.0 |
+| `fulguris` | Fulguris as the browser, replacing Jelly | 20.0, 22.2, 23.2, 24.0 |
 | `gapps` | Google apps: Play Store and GMS from MindTheGapps, plus Google's versions of the stock apps | 18.1, 19.1, 20.0, 21.0, 22.2, 23.2, 24.0 |
 | `google-feed-off` | Google feed (-1 screen) off by default | 18.1, 19.1, 20.0, 22.2, 23.2 |
 | `home-defaults` | Home screen defaults: no icon labels, no auto-add | 18.1, 19.1, 20.0, 22.2, 23.2 |
 | `k9` | K-9 Mail (the Thunderbird for Android codebase) as the mail client | 20.0, 22.2, 23.2, 24.0 |
 | `kdeconnect` | KDE Connect (phone <-> desktop: notifications, clipboard, files, remote input) | 20.0, 22.2, 23.2, 24.0 |
+| `linphone` | Linphone: a SIP client, for voice over data where the device has no VoLTE | 20.0, 22.2, 23.2, 24.0 |
 | `linux` | On-device Linux environment (chroot + Docker): container kernel config and cgroup fixes | any |
 | `livedisplay-off` | LiveDisplay off by default | 18.1, 19.1, 20.0, 22.2, 23.2 |
 | `minimal-home` | Minimal home screen: hotseat only, no second page | 18.1, 19.1, 20.0, 22.2, 23.2 |
@@ -81,8 +83,10 @@ sync time and verifies it against a pinned signing certificate, so an image carr
 was on the day it was built. `FDROID_PINS` in `device.conf` holds one to a versionCode when you
 need to reproduce a release or hold back a bad update.
 
-`firefox` and `fulguris` are both the browser, replacing Jelly, and are mutually exclusive. Fennec
-stages 320 MB against Fulguris's 9 MB, so which one fits is a partition question, not a taste one.
+`firefox` and `fulguris` are both the browser, replacing Jelly, and are mutually exclusive.
+`fulguris` is what the example presets carry: Fennec stages 320 MB against Fulguris's 9 MB, which
+is the difference between fitting and not on a smaller device. Fennec has not gone anywhere --
+swap the names in `device.conf` if you have the room and want it.
 The same goes for `nextcloud` (~600 MB) against `nextcloud-core` (~270 MB). Check the partition
 before adding any of them: an image that does not fit fails hours in, when it is assembled.
 
