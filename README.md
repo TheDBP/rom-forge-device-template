@@ -34,18 +34,56 @@ PRESET=full  ./forge/bootstrap.sh
 OPTIONS="root" ./forge/bootstrap.sh      # or pick options directly, no preset needed
 ```
 
-Presets live in `device.conf`; options live in the forge and work on any device. Adding an option to
-a preset is one word — there is no per-device wiring to write. App options (`fdroid`, `firefox`,
-`fulguris`, `k9`, `termoneplus`, `kdeconnect`, plus `nextcloud` — the eight Nextcloud apps, ~600 MB
-— and `nextcloud-core` — Files, Talk, NextPush and DAVx5, ~270 MB) download the build F-Droid
-currently suggests at sync time, verified by signing certificate; `FDROID_PINS` in `device.conf`
-holds one to a versionCode. They carry patches for lineage-22.2 and 23.2 (`k9`, `kdeconnect`,
-`termoneplus`, `nextcloud*` also 20.0; `fulguris` 22.2 only); on another branch, drop the ones
-without a patch set from the preset or the build stops at its option check.
+Queueing builds, or launching one unattended? Use `./forge/tools/run-one.sh . <preset> <extras>`
+instead. It refuses to start while another build is running — two AOSP builds on one machine is an
+OOM kill — and writes a timestamped log with a start and finish line a watcher can read.
 
-`firefox` and `fulguris` are the browser, replacing Jelly, and are mutually exclusive: Fennec is
-320 MB staged and Fulguris 9 MB, so which one fits is a partition question. Check the super partition before adding the big ones: an
-image that does not fit fails hours in, when it is assembled.
+Presets live in `device.conf`; options live in the forge and work on any device. Adding an option to
+a preset is one word — there is no per-device wiring to write.
+
+An option only works on a branch it carries patches for. Put one in a preset on a branch without
+them and the build stops at the option check — deliberately, rather than quietly shipping an image
+missing what you asked for. **No option carries `lineage-24.0` patches yet.**
+
+| option | what it does | branches with patches |
+|---|---|---|
+| `advanced-restart` | Advanced restart in the power menu | 18.1, 19.1, 20.0, 22.2, 23.2 |
+| `dark-default` | Default to dark theme | 20.0, 21.0, 22.2, 23.2 |
+| `fdroid` | F-Droid app store + Privileged Extension (silent installs/updates) | 22.2, 23.2 |
+| `firefox` | Firefox (Fennec F-Droid) as the browser, replacing Jelly | 22.2, 23.2 |
+| `fulguris` | Fulguris as the browser, replacing Jelly | 22.2 |
+| `gapps` | Google apps: Play Store and GMS from MindTheGapps, plus Google's versions of the stock apps | 18.1, 19.1, 20.0, 21.0, 22.2, 23.2 |
+| `google-feed-off` | Google feed (-1 screen) off by default | 18.1, 19.1, 20.0, 22.2, 23.2 |
+| `home-defaults` | Home screen defaults: no icon labels, no auto-add | 18.1, 19.1, 20.0, 22.2, 23.2 |
+| `k9` | K-9 Mail (the Thunderbird for Android codebase) as the mail client | 20.0, 22.2, 23.2 |
+| `kdeconnect` | KDE Connect (phone <-> desktop: notifications, clipboard, files, remote input) | 20.0, 22.2, 23.2 |
+| `linux` | On-device Linux environment (chroot + Docker): container kernel config and cgroup fixes | any |
+| `livedisplay-off` | LiveDisplay off by default | 18.1, 19.1, 20.0, 22.2, 23.2 |
+| `minimal-home` | Minimal home screen: hotseat only, no second page | 18.1, 19.1, 20.0, 22.2, 23.2 |
+| `nav-icons` | Nextbit Robin style nav-bar icons, drawn as scalable tintable vectors | 20.0, 21.0, 22.2, 23.2 |
+| `nextcloud` | Nextcloud bundle: Files, Talk, NextPush, Deck, NC Passwords, Notes, DAVx5, Tasks — the current F-Droid build of each | 20.0, 22.2, 23.2 |
+| `nextcloud-core` | Nextcloud, the four that make the phone a client: Files, Talk, NextPush, DAVx5 — the current F-Droid build of each | 20.0, 22.2, 23.2 |
+| `nfc-off` | NFC off by default | 18.1, 19.1, 20.0, 22.2, 23.2 |
+| `oem` | The manufacturer's own boot animation, wallpapers and sounds, reclaimed from its stock ROM | any |
+| `root` | Magisk baked into the boot image, so the zip flashes pre-rooted | any |
+| `setupwizard-lineage` | Use Lineage SetupWizard over Google's (WITH_GAPPS) | 18.1, 19.1, 20.0 |
+| `setupwizard-nag-skip` | Skip recovery/metrics/backup setup pages | 18.1, 19.1, 20.0, 22.2, 23.2 |
+| `teal-skin` | Teal accent — fixed #009D94 Monet preset seed | 19.1, 20.0, 22.2, 23.2 |
+| `teal-wallpaper` | Teal-shag default wallpaper (baked into framework-res) | any |
+| `terminal-visible` | Show the Terminal app in the launcher | 18.1, 19.1 |
+| `termoneplus` | TermOne Plus terminal emulator (F-Droid build) | 20.0, 22.2, 23.2 |
+| `themed-icons` | Themed (monochrome) app icons on by default | 19.1, 20.0, 22.2, 23.2 |
+
+The app options (`fdroid`, `firefox`, `fulguris`, `k9`, `termoneplus`, `kdeconnect`, `nextcloud`,
+`nextcloud-core`) ship no APK of their own: each downloads the build F-Droid currently suggests at
+sync time and verifies it against a pinned signing certificate, so an image carries the app as it
+was on the day it was built. `FDROID_PINS` in `device.conf` holds one to a versionCode when you
+need to reproduce a release or hold back a bad update.
+
+`firefox` and `fulguris` are both the browser, replacing Jelly, and are mutually exclusive. Fennec
+stages 320 MB against Fulguris's 9 MB, so which one fits is a partition question, not a taste one.
+The same goes for `nextcloud` (~600 MB) against `nextcloud-core` (~270 MB). Check the partition
+before adding any of them: an image that does not fit fails hours in, when it is assembled.
 
 ## What it does for you
 
