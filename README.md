@@ -43,26 +43,27 @@ a preset is one word — there is no per-device wiring to write.
 
 An option only works on a branch it carries patches for. Put one in a preset on a branch without
 them and the build stops at the option check — deliberately, rather than quietly shipping an image
-missing what you asked for. **No option carries `lineage-24.0` patches yet.**
+missing what you asked for. On `lineage-24.0` only the app options and `gapps` are ready so far;
+the look-and-behaviour set has no 24.0 patches yet.
 
 | option | what it does | branches with patches |
 |---|---|---|
 | `advanced-restart` | Advanced restart in the power menu | 18.1, 19.1, 20.0, 22.2, 23.2 |
 | `dark-default` | Default to dark theme | 20.0, 21.0, 22.2, 23.2 |
-| `fdroid` | F-Droid app store + Privileged Extension (silent installs/updates) | 22.2, 23.2 |
-| `firefox` | Firefox (Fennec F-Droid) as the browser, replacing Jelly | 22.2, 23.2 |
+| `fdroid` | F-Droid app store + Privileged Extension (silent installs/updates) | 22.2, 23.2, 24.0 |
+| `firefox` | Firefox (Fennec F-Droid) as the browser, replacing Jelly | 22.2, 23.2, 24.0 |
 | `fulguris` | Fulguris as the browser, replacing Jelly | 22.2 |
-| `gapps` | Google apps: Play Store and GMS from MindTheGapps, plus Google's versions of the stock apps | 18.1, 19.1, 20.0, 21.0, 22.2, 23.2 |
+| `gapps` | Google apps: Play Store and GMS from MindTheGapps, plus Google's versions of the stock apps | 18.1, 19.1, 20.0, 21.0, 22.2, 23.2, 24.0 |
 | `google-feed-off` | Google feed (-1 screen) off by default | 18.1, 19.1, 20.0, 22.2, 23.2 |
 | `home-defaults` | Home screen defaults: no icon labels, no auto-add | 18.1, 19.1, 20.0, 22.2, 23.2 |
-| `k9` | K-9 Mail (the Thunderbird for Android codebase) as the mail client | 20.0, 22.2, 23.2 |
-| `kdeconnect` | KDE Connect (phone <-> desktop: notifications, clipboard, files, remote input) | 20.0, 22.2, 23.2 |
+| `k9` | K-9 Mail (the Thunderbird for Android codebase) as the mail client | 20.0, 22.2, 23.2, 24.0 |
+| `kdeconnect` | KDE Connect (phone <-> desktop: notifications, clipboard, files, remote input) | 20.0, 22.2, 23.2, 24.0 |
 | `linux` | On-device Linux environment (chroot + Docker): container kernel config and cgroup fixes | any |
 | `livedisplay-off` | LiveDisplay off by default | 18.1, 19.1, 20.0, 22.2, 23.2 |
 | `minimal-home` | Minimal home screen: hotseat only, no second page | 18.1, 19.1, 20.0, 22.2, 23.2 |
 | `nav-icons` | Nextbit Robin style nav-bar icons, drawn as scalable tintable vectors | 20.0, 21.0, 22.2, 23.2 |
-| `nextcloud` | Nextcloud bundle: Files, Talk, NextPush, Deck, NC Passwords, Notes, DAVx5, Tasks — the current F-Droid build of each | 20.0, 22.2, 23.2 |
-| `nextcloud-core` | Nextcloud, the four that make the phone a client: Files, Talk, NextPush, DAVx5 — the current F-Droid build of each | 20.0, 22.2, 23.2 |
+| `nextcloud` | Nextcloud bundle: Files, Talk, NextPush, Deck, NC Passwords, Notes, DAVx5, Tasks — the current F-Droid build of each | 20.0, 22.2, 23.2, 24.0 |
+| `nextcloud-core` | Nextcloud, the four that make the phone a client: Files, Talk, NextPush, DAVx5 — the current F-Droid build of each | 20.0, 22.2, 23.2, 24.0 |
 | `nfc-off` | NFC off by default | 18.1, 19.1, 20.0, 22.2, 23.2 |
 | `oem` | The manufacturer's own boot animation, wallpapers and sounds, reclaimed from its stock ROM | any |
 | `root` | Magisk baked into the boot image, so the zip flashes pre-rooted | any |
@@ -71,7 +72,7 @@ missing what you asked for. **No option carries `lineage-24.0` patches yet.**
 | `teal-skin` | Teal accent — fixed #009D94 Monet preset seed | 19.1, 20.0, 22.2, 23.2 |
 | `teal-wallpaper` | Teal-shag default wallpaper (baked into framework-res) | any |
 | `terminal-visible` | Show the Terminal app in the launcher | 18.1, 19.1 |
-| `termoneplus` | TermOne Plus terminal emulator (F-Droid build) | 20.0, 22.2, 23.2 |
+| `termoneplus` | TermOne Plus terminal emulator (F-Droid build) | 20.0, 22.2, 23.2, 24.0 |
 | `themed-icons` | Themed (monochrome) app icons on by default | 19.1, 20.0, 22.2, 23.2 |
 
 The app options (`fdroid`, `firefox`, `fulguris`, `k9`, `termoneplus`, `kdeconnect`, `nextcloud`,
