@@ -12,6 +12,7 @@ container.
 | `check-platform-support.sh` | before porting | what upstream no longer gives this SoC — the cheapest, most predictive check |
 | `find-orphaned-sepolicy-types.sh` | before porting | SELinux types the device references that the new branch deleted |
 | `find-removed-platform-symbols.sh` | before porting | C/C++ platform constants it lost |
+| `find-soong-namespace-drift.sh` | before porting | Soong namespaces the device must now import, modules and HIDL libraries the branch deleted (including what the blobs link against), makefile paths that moved |
 | `triage-build-log.sh` | after a failed build | a wall of errors collapsed into a few classes |
 | `check-image-labels.sh` | when packaging fails | every unlabeled path at once, instead of one per build |
 | `unpack-block-ota.sh` | when flashing | partition images out of a `payload.bin` OTA, for fastboot-only flashing |
@@ -37,6 +38,21 @@ Called for you by `bootstrap.sh`, listed here so you know what they are:
 | `check-hal-readiness.sh` | HALs the manifest declares with nothing to serve them — finds them before a build-flash-boot cycle does |
 | `check-bpf-readiness.sh` | what a kernel without eBPF (or other modern syscalls) will break; `--src` scans code, `--log` reads what the device actually got |
 | `propagate-forge.sh` | pushes an engine change out to every device repo beside this one, fast-forwarding each branch to its remote first |
+| `kernel-rebuild.sh` | boot image only, ~20 min, with the last full build's exact option set (`out/.turbo_config`) so `out/` neither reconfigures nor installcleans; `--am <patch>` puts an overlay kernel patch on the live tree first |
+
+Bringing a kernel up to a newer branch (the *kernel gate* of a port — see
+[docs/porting-a-branch-bump.md](../docs/porting-a-branch-bump.md)), in the order you reach for them:
+
+| tool | run it | what you get |
+|---|---|---|
+| `check-bpf-objects.py` | before the first boot, on the built `.o` files | every BPF map/program/helper the old kernel cannot load, with the kver-gated ones marked skipped |
+| `hybrid-bootimg.sh` | before the first boot | new kernel + old *recovery* ramdisk: recovery/fastbootd on the candidate kernel, so the phone stays reachable |
+| `init-harness.sh` | from that recovery | the new ramdisk's `/init` run as PID 1 of a throwaway pidns on the live kernel; each FATAL in kmsg is a gap, no slot-retry burnt. Covers bionic → `selinux_setup` → start of second stage |
+| `dtbo-ramoops-alt.py` | for anything past that | a debug dtbo whose live ramoops ring survives a clean reboot; normal-boot, then read it from recovery — the only way to see `early-init` die (cgroups, apexd-bootstrap) on a device whose bootloader wipes pstore |
+| `pstore-pull.sh` | from recovery, after | every pstore record, plus the raw ring unrolled if the kernel did not expose it |
+| `pixel-ramoops-pull.sh` | Pixel 3/3a class, after a *panic* | the encrypted klog the bootloader saved, decrypted with your own key |
+| `super-loop-mount.sh` | from recovery | a logical partition of the inactive slot mounted rw without device-mapper — edit `init.rc`, push a binary, chroot into it |
+| `usb-watch.sh` | during a boot attempt | timestamped USB/adb/fastboot transitions: how long until the bootloader, whether adbd ever appeared |
 
 ## Assessing a port
 
@@ -52,6 +68,10 @@ must be on disk. Keep the old tree until the port lands.
 
 # Which C/C++ constants did it lose?
 ./tools/find-removed-platform-symbols.sh <OLD_SRC> <NEW_SRC> device/<vendor>/<codename>
+
+# Which namespaces, modules, blob dependencies and include paths did it move or delete?
+# (OLD tree's device dir as 4th arg when NEW_SRC has no synced device tree yet; EXTRA_TREES for sibling blob dirs)
+EXTRA_TREES="vendor/<vendor>/<sibling>" ./tools/find-soong-namespace-drift.sh <OLD_SRC> <NEW_SRC> device/<vendor>/<codename> [<OLD_SRC>/device/<vendor>/<codename>]
 ```
 
 Each `[OUT]` gate means the device no longer gets whatever that block configures. The three outputs
@@ -93,6 +113,7 @@ What the tools report, on a real port:
 | `check-platform-support.sh` | `device/qcom/sepolicy-legacy/SEPolicy.mk` no longer lists `msm8992`, so the whole legacy qcom vendor policy is gone. Also flags the inverted `BOARD_SEPOLICY_M4DEFS` gate — the reason importing a newer vendor policy trips AOSP neverallows. |
 | `find-orphaned-sepolicy-types.sh` | `adsprpcd_file`, `qdisplay_service`, `sysfs_graphics`, `perfd`, `debugfs_rmt`, `time_data_file`, … — six build cycles' worth, in one pass. |
 | `find-removed-platform-symbols.sh` | AOSP 12 dropped the vendor section of `system/camera.h`; the bundled QCamera2 HAL uses eight of those constants. |
+| `find-soong-namespace-drift.sh` | 22.2→24.0 on a Pixel 3a: five `hardware/google/pixel/*` subdirs became namespaces the device never imported; `hardware/qcom/wlan` gained a namespace that shadows the imported `legacy` one; dumpstate 1.1, health.storage 1.0, `hardware.google.light@1.0-service`, `check_dynamic_partitions`, `disable_configstore` gone; the fingerprint blob links `android.frameworks.stats@1.0`, deleted; `vendor/lineage/config/device_framework_matrix.xml` moved. Seven build cycles, one pass. |
 | `triage-build-log.sh` | 274 edges → `BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES` + a kernel toolchain flag. |
 
 ## Fixing what they find
@@ -121,7 +142,7 @@ actually fails, so they are worth knowing by name.
 | `docker/prefetch.sh` | downloads the build's network inputs into `/dl` in-container, so they overlap `repo sync` instead of running after it. A set-but-failed download is fatal, deliberately |
 | `docker/_build_rom.sh` | runs the build inside the container and calls each enabled option's `require.sh` before and `post-build.sh` after |
 | `prebuilt/lib-fdroid.sh` | the F-Droid fetch: resolves the suggested build of a package, verifies package name, ABI and the pinned signer certificate, unpacks native libraries the APK packs compressed, writes the Soong module file |
-| `prebuilt/fetch-firefox.sh`, `fetch-fulguris.sh`, `fetch-fdroid.sh`, `fetch-k9.sh`, `fetch-kdeconnect.sh`, `fetch-termoneplus.sh`, `fetch-nextcloud.sh`, `fetch-linphone.sh`, `fetch-connectbot.sh` | the per-option fetchers on top of it: package, signer pin, module names |
+| `prebuilt/fetch-firefox.sh`, `fetch-fulguris.sh`, `fetch-fdroid.sh`, `fetch-k9.sh`, `fetch-kdeconnect.sh`, `fetch-termoneplus.sh`, `fetch-nextcloud.sh`, `fetch-linphone.sh`, `fetch-connectbot.sh`, `fetch-syncthing-fork.sh` | the per-option fetchers on top of it: package, signer pin, module names |
 | `prebuilt/lib-app-checks.sh` | the `require.sh` / `post-build.sh` checks those options share: APKs present and named in the module file; shipped byte-identical, libraries installed beside |
 | `prebuilt/fetch-magisk.sh` | downloads Magisk for the `root` option's boot-image patch |
 

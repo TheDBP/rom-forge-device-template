@@ -2,6 +2,6 @@
 # Update with: ./forge/tools/sync-forge.sh [ref]
 url=https://github.com/TheDBP/rom-forge.git
 ref=main
-commit=ea396ff2668632db14b6328f88f83de7e77de125
-subject=setupwizard-nag-skip: lineage-24.0
-synced=2026-09-19T19:28:55Z
+commit=bf3b0a7dfc9b718dbb33f71b947c18ce170c40d0
+subject=tools: bank the kernel bring-up debug set
+synced=2026-09-21T11:28:21Z

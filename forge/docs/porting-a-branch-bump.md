@@ -14,7 +14,21 @@ causes one at a time, several of which were predictable before the first build.
 
 # 3. C/C++ constants the new branch removed but the device tree still uses.
 ./tools/find-removed-platform-symbols.sh <OLD_SRC> <NEW_SRC> device/<vendor>/<codename>
+
+# 4. Soong namespaces the device must now import (and shadowing order), modules and HIDL libraries
+#    the branch deleted -- including what the proprietary blobs are linked against -- and makefile
+#    paths that moved. Each hit is one Soong analysis failure, ~20 min apiece on a 24.0 tree.
+EXTRA_TREES="vendor/<vendor>/<sibling>" ./tools/find-soong-namespace-drift.sh <OLD_SRC> <NEW_SRC> device/<vendor>/<codename> [<OLD_SRC>/device/<vendor>/<codename>]
 ```
+
+Namespace fixes go in BOTH places: `PRODUCT_SOONG_NAMESPACES` in the device .mk and `imports:` in
+the device `Android.bp`. Order matters when two namespaces define the same module name -- root and
+namespace searches take the first match in list order.
+
+Pre-5.10 kernel on lineage-24.0: the branch removed GCC-assisted kernel builds and their binutils
+prebuilts. Check `patches/README.md` for the engine patch and the two manifest projects the device
+must add; without them the first symptom is `media/msm_media_info.h: file not found` two hours into
+the compile, not a kernel error.
 
 Then build with `KEEP_GOING=true` and triage the whole error surface at once:
 
@@ -24,6 +38,18 @@ KEEP_GOING=true JOBS=<n> PRESET=clean ./forge/bootstrap.sh
 ```
 
 Fixing one error per 30-minute cycle is the default failure mode of a port. Don't.
+
+## The kernel gate, once it builds
+
+A userspace two or more releases newer than the kernel fails in init, one missing kernel feature at
+a time, and each one looks the same from outside: nothing on USB, back in the bootloader. Take them
+as a list, one backport per flash, and never find them with normal boots (each burns a slot retry
+and, on bootloaders that hard-reset, leaves no log). Tools in `tools/README.md`, *Bringing a kernel
+up*: `check-bpf-objects.py` first (static), `hybrid-bootimg.sh` + `init-harness.sh` for bionic →
+`selinux_setup`, `dtbo-ramoops-alt.py` + `pstore-pull.sh` for `early-init` onwards,
+`kernel-rebuild.sh --am` to get each patch onto hardware in 20 minutes. Known items for a 4.9 kernel
+on Android 17 so far: `MADV_WIPEONFORK` (bionic aborts), the Android-only avtab M-compat shim
+(`nlmsg` xperms), `cpuset_v2_mode` (libprocessgroup mounts cpuset with it, no fallback), then eBPF.
 
 ## The pattern that costs the most time
 

@@ -74,7 +74,17 @@ if [ ! -d "$DEVICE_REPO/forge" ]; then
   FORGE_MNT=(-v "$_forge_root":/repo/forge)
 fi
 
-COMMON=(--name "$CONTAINER" --cpus="$CPUS"
+# SOONG_MEM_LIMIT caps soong_build's Go heap (GOMEMLIMIT). Analysis is ONE process whose peak is
+# set by the size of the build graph, not by JOBS -- on a 24.0 tree the live graph is ~30 GB and
+# Go's default GC lets the heap reach twice that, which is a 32 GB machine plus all of its swap.
+# The soft limit makes the GC work harder instead of growing the heap; above the limit Go caps GC
+# at half the CPU, so it degrades rather than spirals. Leave unset to let it grow.
+# soong_ui runs soong_build under `env -i`: this variable only arrives if
+# patches/<branch>/build/soong carries the forwarding patch (apply-overlay step 0).
+GOMEM_ENV=()
+[ -n "${SOONG_MEM_LIMIT:-}" ] && GOMEM_ENV=(-e "GOMEMLIMIT=$SOONG_MEM_LIMIT")
+
+COMMON=(--name "$CONTAINER" --cpus="$CPUS" "${GOMEM_ENV[@]}"
   -v "$SRC":/aosp -v "$CCACHE":/ccache -v "$DEVICE_REPO":/repo
   "${FORGE_MNT[@]}"
   "${STOCK_MNT[@]}" "${GAPPS_MNT[@]}" "${DL_MNT[@]}" "${MIRROR_MNT[@]}" "${KEYS_MNT[@]}")
