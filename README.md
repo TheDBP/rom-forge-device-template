@@ -55,6 +55,8 @@ the look-and-behaviour set has no 24.0 patches yet.
 | `firefox` | Firefox (Fennec F-Droid) as the browser, replacing Jelly — still available, no preset carries it now | 22.2, 23.2, 24.0 |
 | `fulguris` | Fulguris as the browser, replacing Jelly | 20.0, 22.2, 23.2, 24.0 |
 | `gapps` | Google apps: Play Store and GMS from MindTheGapps, plus Google's versions of the stock apps | 18.1, 19.1, 20.0, 21.0, 22.2, 23.2, 24.0 |
+| `bringup` | Diagnostic: adbd from boot with no authorisation prompt, plus persistent logcat, so a build that never reaches the lock screen can still be traced. **Never share an image built with it** — it accepts adb from any host | any |
+| `drm-trace` | Diagnostic: kernel trace of whoever disables a DRM plane or CRTC, for a panel that dies while the framework still thinks it is on | any |
 | `google-feed-off` | Google feed (-1 screen) off by default | 18.1, 19.1, 20.0, 22.2, 23.2 |
 | `home-defaults` | Home screen defaults: no icon labels, no auto-add | 18.1, 19.1, 20.0, 22.2, 23.2 |
 | `k9` | K-9 Mail (the Thunderbird for Android codebase) as the mail client | 20.0, 22.2, 23.2, 24.0 |
@@ -66,8 +68,10 @@ the look-and-behaviour set has no 24.0 patches yet.
 | `nav-icons` | Nextbit Robin style nav-bar icons, drawn as scalable tintable vectors | 20.0, 21.0, 22.2, 23.2 |
 | `nextcloud` | Nextcloud bundle: Files, Talk, NextPush, Deck, NC Passwords, Notes, DAVx5, Tasks — the current F-Droid build of each | 20.0, 22.2, 23.2, 24.0 |
 | `nextcloud-core` | Nextcloud, the four that make the phone a client: Files, Talk, NextPush, DAVx5 — the current F-Droid build of each | 20.0, 22.2, 23.2, 24.0 |
+| `openvpn` | OpenVPN for Android (`de.blinkt.openvpn`) as a bundled VPN client | 20.0, 22.2, 24.0 |
 | `nfc-off` | NFC off by default | 18.1, 19.1, 20.0, 22.2, 23.2 |
 | `oem` | The manufacturer's own boot animation, wallpapers and sounds, reclaimed from its stock ROM | any |
+| `syncthing-fork` | Syncthing-Fork: continuous file sync between your own devices, no server or account | 20.0, 22.2, 23.2, 24.0 |
 | `root` | Magisk baked into the boot image, so the zip flashes pre-rooted | any |
 | `setupwizard-lineage` | Use Lineage SetupWizard over Google's (WITH_GAPPS) | 18.1, 19.1, 20.0 |
 | `setupwizard-nag-skip` | Skip recovery/metrics/backup setup pages | 18.1, 19.1, 20.0, 22.2, 23.2 |
