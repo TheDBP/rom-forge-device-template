@@ -149,6 +149,19 @@ KEEP_GOING=true PRESET=clean ./forge/bootstrap.sh               # keep going pas
 Then check [`forge/GOTCHAS.md`](forge/GOTCHAS.md) — it is a list of things that have gone wrong
 before, indexed by the error you are staring at.
 
+## When it boots but something is broken
+
+A build that boots and then misbehaves is a different job from one that will not compile. Each of
+these is a worked method, not a description:
+
+| Doc | For |
+|---|---|
+| [`forge/docs/debugging-a-boot-loop.md`](forge/docs/debugging-a-boot-loop.md) | It builds but will not boot. |
+| [`forge/docs/debugging-a-vendor-blob.md`](forge/docs/debugging-a-vendor-blob.md) | A prebuilt HAL that worked on the old branch and crashes on the new one. |
+| [`forge/docs/debugging-a-dead-panel.md`](forge/docs/debugging-a-dead-panel.md) | The screen goes black and stays black while the framework still reports the display on. |
+| [`forge/docs/porting-a-branch-bump.md`](forge/docs/porting-a-branch-bump.md) | Moving the device to a newer Android — checks to run before the first build. |
+| [`forge/docs/lineage-branches.md`](forge/docs/lineage-branches.md) | Choosing a branch, and avoiding a higher number that is actually older code. |
+
 ## Signing and publishing
 
 A build signed with AOSP's public test keys is fine to flash and not fine to hand out. Make your own
