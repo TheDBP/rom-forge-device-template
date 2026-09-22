@@ -26,7 +26,7 @@ One command produces one image. A **preset** is a saved set of **options**:
 |---|---|---|
 | `clean` | nothing | The baseline. Nothing proprietary baked in. |
 | `libre` | F-Droid, Fulguris, K-9 Mail, TermOne Plus, KDE Connect, ConnectBot, Linphone | Sharing: the one `release.sh` will publish. |
-| `full` | `libre` + Google apps + Magisk root | A daily driver with everything. |
+| `full` | `libre` + Google apps | A daily driver with everything. |
 
 ```sh
 PRESET=clean ./forge/bootstrap.sh        # start here -- it needs no inputs you have to find
