@@ -53,7 +53,7 @@ the look-and-behaviour set has no 24.0 patches yet.
 | `dark-default` | Default to dark theme | 20.0, 21.0, 22.2, 23.2 |
 | `fdroid` | F-Droid app store + Privileged Extension (silent installs/updates) | 22.2, 23.2, 24.0 |
 | `firefox` | Firefox (Fennec F-Droid) as the browser, replacing Jelly — still available, no preset carries it now | 22.2, 23.2, 24.0 |
-| `fulguris` | Fulguris as the browser, replacing Jelly | 20.0, 22.2, 23.2, 24.0 |
+| `fulguris` | Fulguris as the browser, replacing Jelly. In no preset — it would be the only browser, and its first run gates on terms nothing else can open | 20.0, 22.2, 23.2, 24.0 |
 | `gapps` | Google apps: Play Store and GMS from MindTheGapps, plus Google's versions of the stock apps | 18.1, 19.1, 20.0, 21.0, 22.2, 23.2, 24.0 |
 | `bringup` | Diagnostic: adbd from boot with no authorisation prompt, plus persistent logcat, so a build that never reaches the lock screen can still be traced. **Never share an image built with it** — it accepts adb from any host | any |
 | `drm-trace` | Diagnostic: kernel trace of whoever disables a DRM plane or CRTC, for a panel that dies while the framework still thinks it is on | any |
@@ -88,9 +88,17 @@ was on the day it was built. `FDROID_PINS` in `device.conf` holds one to a versi
 need to reproduce a release or hold back a bad update.
 
 `firefox` and `fulguris` are both the browser, replacing Jelly, and are mutually exclusive.
-`fulguris` is what the example presets carry: Fennec stages 320 MB against Fulguris's 9 MB, which
-is the difference between fitting and not on a smaller device. Fennec has not gone anywhere --
-swap the names in `device.conf` if you have the room and want it.
+Fennec stages 320 MB against Fulguris's 9 MB, which is the difference between fitting and not on a
+smaller device.
+
+**Neither is in the example presets, on purpose.** Both *override* Jelly rather than installing
+beside it, so a preset carrying one ships it as the only browser in the image — and both ask you to
+accept a privacy policy and terms on first run, which nothing else can open. Leaving them out keeps
+Jelly, Lineage's own browser, which is in the base image anyway. Add one deliberately:
+
+```sh
+EXTRA_OPTIONS=fulguris PRESET=full ./forge/bootstrap.sh
+```
 The same goes for `nextcloud` (~600 MB) against `nextcloud-core` (~270 MB). Check the partition
 before adding any of them: an image that does not fit fails hours in, when it is assembled.
 
