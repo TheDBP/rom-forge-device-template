@@ -165,7 +165,7 @@ b "You're set up. What happens next:"
 echo
 say "  ./bootstrap.sh                 build it (hours the first time)"
 say "  PRESET=clean ./bootstrap.sh    build without Google apps or root"
-say "  PRESET=libre ./bootstrap.sh    the same plus F-Droid, Firefox, K-9 -- the one you can publish"
+say "  PRESET=libre ./bootstrap.sh    the same plus F-Droid, K-9, ConnectBot -- the one you can publish"
 echo
 say "The ROM lands in build_output/artifacts/ (a copy that survives the next build)"
 echo
