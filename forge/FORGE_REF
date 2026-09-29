@@ -4,4 +4,4 @@ url=https://github.com/TheDBP/rom-forge.git
 ref=main
 commit=faea735c78cd61ba6121ca79ca7e2fe722614053
 subject=options: let a diagnostic kernel patch be skipped, and stop nextcloud-core breaking nextcloud
-synced=2026-09-28T12:23:15Z
+synced=2026-09-29T16:26:14Z
