@@ -38,7 +38,8 @@ say "This gets you a custom Android build for a device you own. Everything happe
 say "inside Docker, so it will not install a toolchain all over your machine."
 echo
 b "Before we start, the honest version:"
-say "• You need roughly 350 GB of free disk and a few hours for the first source sync."
+say "• You need roughly 350 GB of free disk: ~100 GB for the source, the rest for build output"
+say "  and ccache. The first sync takes hours."
 say "• If LineageOS already supports your phone, this is mostly waiting."
 say "• If it does not, you are porting -- that is a real project, measured in days,"
 say "  and it may not work at all. This tool will tell you which one you are in."
