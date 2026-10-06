@@ -5,7 +5,7 @@
 # device.conf for you, and tells you honestly how hard this port is likely to be.
 #
 #   ./start-here.sh              # plug the phone in, or answer one question
-#   ./start-here.sh --codename bonito --branch lineage-22.2
+#   ./start-here.sh --codename bonito --branch lineage-24.0
 set -o pipefail
 cd "$(dirname "$0")"
 
@@ -18,9 +18,15 @@ say(){ printf '  %s\n' "$*"; }
 CODENAME=""; BRANCH=""
 while [ $# -gt 0 ]; do
   case "$1" in
-    --codename) CODENAME="$2"; shift 2;;
-    --branch)   BRANCH="$2";   shift 2;;
-    -h|--help)  sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 0;;
+    # `shift 2` with one argument left does NOT shift and returns non-zero, so a flag given with no
+    # value spun this loop forever -- and the example in this script's own usage is `--codename
+    # bonito`, so a trailing typo hung the front door. Require the value.
+    --codename) [ $# -ge 2 ] || { no "--codename needs a value, e.g. --codename bonito"; exit 2; }
+                CODENAME="$2"; shift 2;;
+    --branch)   [ $# -ge 2 ] || { no "--branch needs a value, e.g. --branch lineage-24.0"; exit 2; }
+                BRANCH="$2";   shift 2;;
+    -h|--help)  sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//'; exit 0;;
+    --*)        no "unknown option: $1"; say "try --codename <name> [--branch <branch>], or no arguments at all"; exit 2;;
     *) shift;;
   esac
 done
@@ -143,7 +149,20 @@ if [ -n "$REPO" ]; then
   TMPD=$(mktemp -d)
   if ./forge/tools/new-device-repo.sh --codename "$CODENAME" ${BRANCH:+--branch "$BRANCH"} \
         "$TMPD/gen" >/dev/null 2>&1 && [ -f "$TMPD/gen/device.conf" ]; then
-    cp -f "$TMPD/gen/device.conf" ./device.conf
+    # Never overwrite a device.conf someone has already filled in: this script is the documented
+    # front door and people re-run front doors. The generated file also comes from
+    # forge/device.conf.example, not from this repo's own curated device.conf, so an unconditional
+    # copy silently replaced the preset set this template ships with a different one.
+    # Keyed on the IDENTITY keys, not "any key has a value": a fresh template already sets
+    # PRESETS, UBUNTU_VER and MANIFEST_URL, so a broader test fires on an untouched clone and the
+    # generated config never lands at all.
+    if grep -qE '^(DEVICE|DEVICE_CODENAME|DEVICE_SLUG|BRANCH|LUNCH_TARGET)=[^[:space:]#]' device.conf 2>/dev/null; then
+      cp -f device.conf "device.conf.before-start-here"
+      hm "device.conf already has values -- left it alone; the generated one is device.conf.generated"
+      cp -f "$TMPD/gen/device.conf" ./device.conf.generated
+    else
+      cp -f "$TMPD/gen/device.conf" ./device.conf
+    fi
     if [ -d "$TMPD/gen/overlay/local_manifests" ]; then
       mkdir -p overlay/local_manifests
       cp -f "$TMPD/gen/overlay/local_manifests/"*.xml overlay/local_manifests/ 2>/dev/null || true
