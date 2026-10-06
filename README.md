@@ -24,8 +24,8 @@ One command produces one image. A **preset** is a saved set of **options**:
 
 | Preset | Adds | Good for |
 |---|---|---|
-| `clean` | nothing | The baseline. Nothing proprietary baked in. |
-| `libre` | F-Droid, K-9 Mail, KDE Connect, ConnectBot | Sharing: the one `release.sh` will publish. |
+| `clean` | `COMMON_OPTIONS` only | The baseline, and what `release.sh` publishes: it takes the first preset whose options contain neither `gapps` nor `oem`. |
+| `libre` | F-Droid, K-9 Mail, KDE Connect, ConnectBot | A no-Google daily driver. |
 | `full` | `libre` + Google apps | A daily driver with everything. |
 
 ```sh

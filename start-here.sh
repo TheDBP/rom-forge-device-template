@@ -53,6 +53,16 @@ if command -v docker >/dev/null 2>&1; then
   else no "Docker is installed but not running (or needs sudo). Start it, then re-run."; FAIL=1; fi
 else no "Docker is not installed -- https://docs.docker.com/engine/install/"; FAIL=1; fi
 command -v git >/dev/null 2>&1 && ok "git" || { no "git is not installed"; FAIL=1; }
+# The BUILD only needs Docker and git -- everything else happens in the container. These three are
+# for THIS script and the scaffolder it calls, and each one failed silently and misleadingly when
+# absent: no curl and the device lookup below reported "nobody has ported this device"; no python3
+# and the local manifest was written without the dependency projects, failing the build hours later;
+# no rsync and updating the engine reported "could not reach the engine repo", sending people to
+# debug their network.
+for _t in curl python3 rsync; do
+  command -v "$_t" >/dev/null 2>&1 && ok "$_t" \
+    || { no "$_t is not installed -- this script needs it (the build itself does not)"; FAIL=1; }
+done
 AVAIL=$(df -BG --output=avail . 2>/dev/null | tail -1 | tr -dc '0-9')
 if [ -n "$AVAIL" ]; then
   if [ "$AVAIL" -ge 350 ]; then ok "disk: ${AVAIL} GB free"
@@ -103,11 +113,20 @@ echo
 # ---- 3. does LineageOS have the pieces? ----
 b "3. Looking up $CODENAME upstream"
 REPO=""
-for guess in $(curl -s "https://api.github.com/search/repositories?q=android_device+$CODENAME+org:LineageOS" 2>/dev/null \
+# Keep the query result and curl's exit status apart from the parse. An empty answer because the
+# lookup never happened is a completely different thing from an empty answer because the device is
+# not there, and reporting the first as the second is the most discouraging thing this tool can say.
+SEARCH="$(curl -sf "https://api.github.com/search/repositories?q=android_device+$CODENAME+org:LineageOS" 2>/dev/null)"
+LOOKUP_RC=$?
+for guess in $(printf '%s' "$SEARCH" \
                | grep -oE '"full_name": *"LineageOS/android_device_[^"]*"' | sed 's/.*"LineageOS/LineageOS/;s/"//g'); do
   case "$guess" in *_"$CODENAME") REPO="$guess"; break;; esac
 done
-if [ -z "$REPO" ]; then
+if [ -z "$REPO" ] && [ "$LOOKUP_RC" != 0 ]; then
+  hm "Could not reach the GitHub API to look up '$CODENAME' (curl exit $LOOKUP_RC)."
+  say "That says nothing about your phone -- the lookup did not happen. Check your network"
+  say "or a proxy, then re-run. You can continue and fill in device.conf by hand."
+elif [ -z "$REPO" ]; then
   hm "No LineageOS device tree found for '$CODENAME'."
   say "Either the codename is wrong, or nobody has ported this device."
   say "You can still continue, but you will be writing the device tree yourself --"
@@ -147,7 +166,14 @@ if [ -n "$REPO" ]; then
   # new-device-repo.sh refuses to write into an existing directory (rightly -- it is a scaffolder).
   # Generate into a temp dir and copy the two files we actually want out of it.
   TMPD=$(mktemp -d)
-  if ./forge/tools/new-device-repo.sh --codename "$CODENAME" ${BRANCH:+--branch "$BRANCH"} \
+  # Pass the vendor we already resolved: new-device-repo.sh otherwise re-derives it from its own
+  # vendor list and comes back empty for anything not on it, leaving DEVICE/VENDOR/LUNCH_TARGET
+  # blank and writing no local manifest, while this script reports everything filled in.
+  VENDOR_GUESS=""
+  case "$REPO" in LineageOS/android_device_*_"$CODENAME")
+    VENDOR_GUESS="${REPO#LineageOS/android_device_}"; VENDOR_GUESS="${VENDOR_GUESS%_$CODENAME}" ;;
+  esac
+  if ./forge/tools/new-device-repo.sh --codename "$CODENAME" ${VENDOR_GUESS:+--vendor "$VENDOR_GUESS"} ${BRANCH:+--branch "$BRANCH"} \
         "$TMPD/gen" >/dev/null 2>&1 && [ -f "$TMPD/gen/device.conf" ]; then
     # Never overwrite a device.conf someone has already filled in: this script is the documented
     # front door and people re-run front doors. The generated file also comes from
