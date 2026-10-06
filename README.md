@@ -28,6 +28,7 @@ One command produces one image. A **preset** is a saved set of **options**:
 | `clean` | `COMMON_OPTIONS` only | The baseline, and what `release.sh` publishes: it takes the first preset whose options contain neither `gapps` nor `oem`. |
 | `libre` | F-Droid, K-9 Mail, KDE Connect, ConnectBot | A no-Google daily driver. |
 | `full` | `libre` + Google apps | A daily driver with everything. |
+| `stock` | nothing — not even `COMMON_OPTIONS` | Every device has this without declaring it. Device patches and nothing else, so "is this bug mine or upstream's?" has an answer. (`STOCK_OPTIONS` in `device.conf` is the exception: options the phone needs to work at all.) |
 
 ```sh
 PRESET=clean ./forge/bootstrap.sh        # start here -- it needs no inputs you have to find

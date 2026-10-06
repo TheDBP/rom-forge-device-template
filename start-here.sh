@@ -166,7 +166,10 @@ b "4. Writing device.conf"
 if [ -n "$REPO" ]; then
   # new-device-repo.sh refuses to write into an existing directory (rightly -- it is a scaffolder).
   # Generate into a temp dir and copy the two files we actually want out of it.
-  TMPD=$(mktemp -d)
+  # build_output/tmp, not /tmp: the forge's own convention, because on a build host /tmp is often a
+  # RAM tmpfs and this copies the whole engine into it.
+  mkdir -p build_output/tmp
+  TMPD=$(mktemp -d build_output/tmp/start-here.XXXXXX)
   # Pass the vendor we already resolved: new-device-repo.sh otherwise re-derives it from its own
   # vendor list and comes back empty for anything not on it, leaving DEVICE/VENDOR/LUNCH_TARGET
   # blank and writing no local manifest, while this script reports everything filled in.
@@ -175,7 +178,10 @@ if [ -n "$REPO" ]; then
     VENDOR_GUESS="${REPO#LineageOS/android_device_}"; VENDOR_GUESS="${VENDOR_GUESS%_$CODENAME}" ;;
   esac
   if ./forge/tools/new-device-repo.sh --codename "$CODENAME" ${VENDOR_GUESS:+--vendor "$VENDOR_GUESS"} ${BRANCH:+--branch "$BRANCH"} \
-        "$TMPD/gen" >/dev/null 2>&1 && [ -f "$TMPD/gen/device.conf" ]; then
+        "$TMPD/gen" >"$TMPD/scaffold.log" 2>&1 && [ -f "$TMPD/gen/device.conf" ]; then
+    # Surface the one warning that matters about a generated manifest. Discarding all output hid it:
+    # the revisions are guesses, and branch names differ between the device, kernel and blob repos.
+    grep -E "verify each revision|!!" "$TMPD/scaffold.log" 2>/dev/null | while IFS= read -r _w; do hm "$_w"; done
     # Never overwrite a device.conf someone has already filled in: this script is the documented
     # front door and people re-run front doors. The generated file also comes from
     # forge/device.conf.example, not from this repo's own curated device.conf, so an unconditional
