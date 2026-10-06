@@ -195,7 +195,10 @@ if [ -n "$REPO" ]; then
       cp -f "$TMPD/gen/overlay/local_manifests/"*.xml overlay/local_manifests/ 2>/dev/null || true
     fi
     ok "device.conf and overlay/local_manifests/ filled in"
-    UNSET=$(grep -cE '^[A-Z_]+=[[:space:]]*(#|$)' device.conf 2>/dev/null); UNSET=${UNSET:-0}
+    # Only the keys bootstrap.sh actually requires. Counting every blank key reported "1 key(s)
+    # still blank" even on a perfect lookup, because SOC is optional and nothing fills it in -- and
+    # it could not tell a cosmetic blank from one that stops the build.
+    UNSET=$(grep -cE '^(DEVICE|DEVICE_CODENAME|DEVICE_SLUG|BRANCH|LUNCH_TARGET)=[[:space:]]*(#|$)' device.conf 2>/dev/null); UNSET=${UNSET:-0}
     [ "$UNSET" -gt 0 ] 2>/dev/null && hm "$UNSET key(s) still blank in device.conf -- open it and fill them in"
   else
     hm "could not auto-fill; edit device.conf by hand"

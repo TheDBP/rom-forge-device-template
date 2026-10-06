@@ -3,8 +3,9 @@
 A ready-to-use template for building a custom Android (LineageOS) ROM for a device you own.
 Clone it, run one script, and it works out the rest.
 
-Everything happens inside Docker. No JDK, no Python, no repo tool, no build dependencies scattered
-across your machine — just Docker, git, and disk.
+The *build* happens inside Docker. No JDK, no repo tool, no build dependencies scattered across
+your machine — just Docker, git, and disk. (`start-here.sh` and the scaffolder it calls also use
+`curl`, `python3` and `rsync` on the host; they check for them and say so.)
 
 ```sh
 git clone https://github.com/TheDBP/rom-forge-device-template.git my-phone
