@@ -1,1 +1,9 @@
-custom: ["https://www.paypal.com/donate/?hosted_button_id=7U8PDZLK7742Q"]
+# Deliberately empty.
+#
+# This is a template: everything here is inherited by whoever clones it. A funding link left in
+# repo metadata gives every clone a Sponsor button soliciting donations for the template's author,
+# which is not what the person cloning it meant to publish.
+#
+# Put your own here if you want one, e.g.:
+#   github: your-username
+#   custom: ["https://example.org/donate"]

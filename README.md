@@ -238,9 +238,18 @@ forge/               the build engine (vendored; ./forge/tools/sync-forge.sh to 
 Pulls the latest [rom-forge](https://github.com/TheDBP/rom-forge) into `forge/` and records the
 commit in `forge/FORGE_REF`, so "which version is this?" is one `grep`.
 
+`.github/workflows/sync-forge.yml` also runs this **every Monday 06:00 UTC** and commits the result
+to your default branch. Two things follow from that, both worth knowing before you leave it on: the
+sync is `rsync --delete`, so local edits inside `forge/` are discarded rather than merged — change
+the engine upstream, or keep your changes in `overlay/patches/` where they belong — and the commits
+come from a bot, unattended. Disable the workflow if you would rather update by hand.
+
 ## Support
 
-This is unpaid work on phones their makers abandoned. If a build saved one from the drawer, [a donation](https://www.paypal.com/donate/?hosted_button_id=7U8PDZLK7742Q) keeps the next one coming.
+The engine this template carries, [rom-forge](https://github.com/TheDBP/rom-forge), is unpaid work
+on phones their makers abandoned. If it saved one from the drawer,
+[a donation](https://www.paypal.com/donate/?hosted_button_id=7U8PDZLK7742Q) keeps the next one
+coming. (Replace this section with your own once this repo is yours.)
 
 ## License
 

@@ -208,16 +208,20 @@ echo
 # ---- 5. what next ----
 b "You're set up. What happens next:"
 echo
-say "  ./bootstrap.sh                 build it (hours the first time)"
-say "  PRESET=clean ./bootstrap.sh    build without Google apps or root"
-say "  PRESET=libre ./bootstrap.sh    the same plus F-Droid, K-9, ConnectBot -- the one you can publish"
+say "  ./bootstrap.sh                 build it (hours the first time) -- same as PRESET=clean,"
+say "                                 because with no PRESET it takes the first one"
+say "  PRESET=libre ./bootstrap.sh    plus F-Droid, K-9, KDE Connect, ConnectBot"
+say "  PRESET=full  ./bootstrap.sh    plus Google apps"
+say "  PRESET=stock ./bootstrap.sh    the reference build: device patches and nothing else,"
+say "                                 for answering \"is this bug mine or upstream\x27s?\""
 echo
 say "The ROM lands in build_output/artifacts/ (a copy that survives the next build)"
 echo
 b "If you are porting to a branch your device does not officially support:"
-say "  ./forge/tools/check-platform-support.sh build_output/src device/<vendor>/$CODENAME"
-say "runs before any build and tells you what upstream has quietly dropped for your"
-say "chip. It is the cheapest hour you will spend. See forge/docs/porting-a-branch-bump.md."
+say "  ./forge/tools/check-platform-support.sh build_output/src device/${VENDOR_GUESS:-<vendor>}/$CODENAME"
+say "tells you what upstream has quietly dropped for your chip. Run it after the first"
+say "sync -- it reads the source tree, so it has nothing to scan until build_output/src"
+say "exists. It is the cheapest hour you will spend. See forge/docs/porting-a-branch-bump.md."
 echo
 say "When a build fails, do not fix one error per cycle:"
 say "  KEEP_GOING=true ./bootstrap.sh"
