@@ -250,8 +250,7 @@ come from a bot, unattended. Disable the workflow if you would rather update by 
 
 The engine this template carries, [rom-forge](https://github.com/TheDBP/rom-forge), is unpaid work
 on phones their makers abandoned. If it saved one from the drawer,
-[a donation](https://www.paypal.com/donate/?hosted_button_id=7U8PDZLK7742Q) keeps the next one
-coming. (Replace this section with your own once this repo is yours.)
+[a donation](https://www.paypal.com/donate/?hosted_button_id=7U8PDZLK7742Q) is greatly appreciated. (Replace this section with your own once this repo is yours.)
 
 ## License
 
