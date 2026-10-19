@@ -2,6 +2,6 @@
 # Update with: ./forge/tools/sync-forge.sh [ref]
 url=https://github.com/TheDBP/rom-forge.git
 ref=main
-commit=b39f2a22208d0be94e60b3a7f752df5a74f5d64e
-subject=docs: regenerate the tool index for the new debugging-volte cross-link
-synced=2026-10-14T02:16:35Z
+commit=e2214788608b10803b53fcab9b3f401e9611606c
+subject=ims-bridge: reconcile the capability bitmap instead of probing once
+synced=2026-10-19T11:35:48Z
