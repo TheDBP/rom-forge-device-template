@@ -2,6 +2,6 @@
 # Update with: ./forge/tools/sync-forge.sh [ref]
 url=https://github.com/TheDBP/rom-forge.git
 ref=main
-commit=e2214788608b10803b53fcab9b3f401e9611606c
-subject=ims-bridge: reconcile the capability bitmap instead of probing once
-synced=2026-10-19T11:35:48Z
+commit=d96d11908522e4b3ce2dd582df56b975affaae03
+subject=patches: let an unowned preinstalled package adopt its sysconfig update owner
+synced=2026-10-26T11:53:27Z

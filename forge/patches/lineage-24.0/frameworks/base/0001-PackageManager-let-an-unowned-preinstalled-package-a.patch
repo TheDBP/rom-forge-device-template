@@ -1,0 +1,69 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: TheDBP <TheDBP@users.noreply.github.com>
+Date: Thu, 22 Oct 2026 06:25:46 -0400
+Subject: [PATCH] PackageManager: let an unowned preinstalled package adopt its
+ sysconfig update owner
+
+A sysconfig <update-ownership> entry only ever latched on a clean
+install. InstallPackageHelper, scanning a preinstalled system package:
+
+    final boolean isSameUpdateOwner = isUpdateOwnershipEnabled
+            && TextUtils.equals(oldUpdateOwner, updateOwnerFromSysconfig);
+
+    if (!pkgAlreadyExists || isSameUpdateOwner) {
+        pkgSetting.setUpdateOwnerPackage(updateOwnerFromSysconfig);
+    } else {
+        pkgSetting.setUpdateOwnerPackage(null);
+    }
+
+isUpdateOwnershipEnabled is `oldUpdateOwner != null`. On an upgrade the
+package already exists and its recorded owner is null, so
+isSameUpdateOwner is false and the else branch runs, clearing the owner
+on every boot. An entry added to the image after a device first installed
+the app can therefore never take effect.
+
+That is the normal case for a ROM that ships preinstalled F-Droid builds
+and gains the entry later: every dirty-flashed device keeps a null owner,
+and because these APKs carry upstream's own certificate, the Play Store
+sees a package it recognises with a matching signature and takes over its
+updates. Measured on a Pixel 3a XL: eleven bundled apps, all of them
+shipping an entry, not one owner set.
+
+Adopt the sysconfig owner when the recorded owner is null as well. Narrow
+on purpose: the clearing rule exists so a system image cannot take a
+package away from the installer the user chose, and nothing is being
+taken when nothing owned it. A real owner that disagrees with sysconfig,
+including the Play Store after a deliberate takeover, is still cleared.
+
+---
+ .../com/android/server/pm/InstallPackageHelper.java  | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/services/core/java/com/android/server/pm/InstallPackageHelper.java b/services/core/java/com/android/server/pm/InstallPackageHelper.java
+index d23c5d943ff4..b9ccbb355e6e 100644
+--- a/services/core/java/com/android/server/pm/InstallPackageHelper.java
++++ b/services/core/java/com/android/server/pm/InstallPackageHelper.java
+@@ -421,12 +421,22 @@ final class InstallPackageHelper {
+             final boolean isSameUpdateOwner = isUpdateOwnershipEnabled
+                     && TextUtils.equals(oldUpdateOwner, updateOwnerFromSysconfig);
+ 
++            // lineage-24.0: a preinstalled package that nothing has ever owned adopts the
++            // sysconfig owner too, not just one being installed for the first time. Without this
++            // the entry only ever latches on a clean install: on an upgrade the package already
++            // exists, its recorded owner is null, so isSameUpdateOwner is false and the branch
++            // below actively clears the owner on every boot. An update-ownership entry added after
++            // a device first installed the app therefore never takes effect, and Play silently
++            // takes the app over on every dirty-flashed device. Narrow on purpose. The clearing
++            // rule exists so a system image cannot steal a package from the installer the user
++            // chose, and nothing is being stolen when the recorded owner is null.
++            //
+             // Here we handle the update owner for the system package, and the rules are:
+             // -. We use the update owner from sysconfig as the initial value.
+             // -. Once an app becomes to system app later via OTA, only retains the update
+             //    owner if it's consistence with sysconfig.
+             // -. Clear the update owner when update owner changes from sysconfig.
+-            if (!pkgAlreadyExists || isSameUpdateOwner) {
++            if (!pkgAlreadyExists || isSameUpdateOwner || oldUpdateOwner == null) {
+                 pkgSetting.setUpdateOwnerPackage(updateOwnerFromSysconfig);
+             } else {
+                 pkgSetting.setUpdateOwnerPackage(null);
